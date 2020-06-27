@@ -1,6 +1,9 @@
 <template>
   <div class="video-form">
     <el-form :model="ruleForm" ref="ruleForm" label-width="100px" :rules="rules">
+      <el-form-item label="登录URL" prop="loginUrl">
+        <el-input type="textarea" :rows="5" placeholder="请输入url" v-model="ruleForm.loginUrl"></el-input>
+      </el-form-item>
       <el-form-item label="Cookie" prop="Cookie">
         <el-input type="textarea" :rows="5" placeholder="请输入Cookie" v-model="ruleForm.Cookie"></el-input>
       </el-form-item>
@@ -17,40 +20,90 @@
   </div>
 </template>
 <script>
-import { addVideo } from "../../api/index";
+import { addVideo, selectData, updataVideo } from "../../api/index";
 export default {
   data() {
-    var validateCookie = (rule, value, callback) => {
+    const validateCookie = (rule, value, callback) => {
       if (value.includes("vqq_vusession")) {
         callback();
       } else {
         callback(new Error("请输入正确Cookie"));
       }
     };
+    const validateLoginUrl = (rule, value, callback) => {
+      if (value.includes("access.video.qq.com/user/auth_refresh?")) {
+        callback();
+      } else {
+        callback(new Error("请输入正确URL"));
+      }
+    };
     return {
       ruleForm: {
         desc: "",
         Cookie: "",
+        loginUrl: "",
         ftqq: ""
       },
       rules: {
-        Cookie: [{ validator: validateCookie, trigger: "blur" }]
+        Cookie: [{ validator: validateCookie, trigger: "blur" }],
+        loginUrl: [{ validator: validateLoginUrl, trigger: "blur" }]
       }
     };
+  },
+  mounted() {
+    if (this.$route.query.id) {
+      selectData({ id: this.$route.query.id }).then(res => {
+        if (res.code == 200) {
+          this.ruleForm.loginUrl = res.data.loginUrl;
+          this.ruleForm.ftqq = res.data.ftqq;
+          this.ruleForm.desc = res.data.desc;
+          this.ruleForm.Cookie = res.data.Cookie;
+        } else {
+          this.$message({
+            message: res.message,
+            type: "error"
+          });
+        }
+      });
+    }
   },
   methods: {
     submit() {
       this.$refs.ruleForm.validate(valid => {
         if (valid) {
-          addVideo(this.ruleForm).then(res => {
-            if (res.code == 200) {
-              this.$message({
-                message: res.message,
-                type: "success"
-              });
-              this.$router.push({ path: "/home" });
-            }
-          });
+          if (!this.$route.query.id) {
+            addVideo(this.ruleForm).then(res => {
+              if (res.code == 200) {
+                this.$message({
+                  message: res.message,
+                  type: "success"
+                });
+                this.$router.push({ path: "/home" });
+              } else {
+                this.$message({
+                  message: res.message,
+                  type: "error"
+                });
+              }
+            });
+          } else {
+            updataVideo({ ...this.ruleForm, id: this.$route.query.id }).then(
+              res => {
+                if (res.code == 200) {
+                  this.$message({
+                    message: res.message,
+                    type: "success"
+                  });
+                  this.$router.push({ path: "/home" });
+                } else {
+                  this.$message({
+                    message: res.message,
+                    type: "error"
+                  });
+                }
+              }
+            );
+          }
         }
       });
     }

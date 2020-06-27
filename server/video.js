@@ -2,7 +2,7 @@ const request = require('request');
 const schedule = require('node-schedule')
 const { Cookie } = require('../module/user')
 console.log('开始运行')
-let loginUrl = 'https://access.video.qq.com/user/auth_refresh?vappid=11059694&vsecret=fdf61a6be0aad57132bc5cdf78ac30145b6cd2c1470b0cfe&type=qq&g_tk=&g_vstk=457703998&g_actk=1876589028&callback=jQuery1910047501314075923284_1590934892643&_=1590934892644';
+let loginUrl = 'https://access.video.qq.com/user/auth_refresh?vappid=11059694&vsecret=fdf61a6be0aad57132bc5cdf78ac30145b6cd2c1470b0cfe&type=qq&g_tk=&g_vstk=520131464&g_actk=517937179&callback=jQuery19103886297766921536_1593225174028&_=1593225174029';
 let loginHeader = {
     'Referer': 'https://v.qq.com',
     'Cookie': '_ga=GA1.2.1592508785.1585213546; RK=O9Bp1Z8yfG; ptcz=40e2965b08f737c2976705ea88a9fa272eee4f5eef233a37b8c848a116a9ebdd; pgv_pvi=1615601664; tvfe_boss_uuid=3220cf98c9dea97f; video_guid=3b9156e421439e7c; video_platform=2; pgv_pvid=7546546872; gid=aa300c2c-0320-4bd2-81c9-efa41367b251; idt=1590908283; pgv_si=s176851968; pgv_info=ssid=s2256421417; _qpsvr_localtk=0.09295763290022041; main_login=qq; vqq_access_token=3E135E8E08C9CBB7165C7D944FD4FAFD; vqq_appid=101483052; vqq_openid=645F0707888CEF3CEA509BA37D428D2A; vqq_vuserid=151667436; vqq_vusession=FauNodAAOqbay5TxfD6MsA..; vqq_refresh_token=6FCD16BE2B22FBEBD81311F4BC741C76; login_time_init=2020-5-31 21:59:37; vqq_next_refresh_time=5221; vqq_login_time_init=1590934853; login_time_last=2020-5-31 22:20:54'
@@ -13,9 +13,9 @@ let url3 = 'https://vip.video.qq.com/fcgi-bin/comm_cgi?name=spp_MissionFaHuo&cmd
 let url4 = 'https://vip.video.qq.com/fcgi-bin/comm_cgi?name=spp_MissionFaHuo&cmd=4&task_id=3' //# 使用弹幕特权
 let url5 = 'https://vip.video.qq.com/fcgi-bin/comm_cgi?name=spp_MissionFaHuo&cmd=4&task_id=6' //# 使用赠片特权
 let url6 = 'https://vip.video.qq.com/fcgi-bin/comm_cgi?name=spp_MissionFaHuo&cmd=4&task_id=7' //# 使用下载特权
-function login(loginHead) {
+function login(url,loginHead) {
     return new Promise((resolve, reject) => {
-        request({ url: loginUrl, headers: loginHead, }, (error, response, body) => {
+        request({ url: url, headers: loginHead, }, (error, response, body) => {
             if (!error && response.statusCode == 200) {
                 resolve(formMate(body).vusession)
             } else {
@@ -24,9 +24,9 @@ function login(loginHead) {
         })
     })
 }
-async function start(loginHead) {
+async function start(url,loginHead) {
     return await new Promise((res, rej) => {
-        login(loginHead).then(async (newVusession) => {
+        login(url,loginHead).then(async (newVusession) => {
             let signHeader = loginHead
             signHeader.Cookie = signHeader.Cookie.split('vqq_vusession=')[0] + 'vqq_vusession=' + newVusession + ';'
             let str = ''
@@ -119,19 +119,26 @@ async function start(loginHead) {
 function formMate(val) {
     return JSON.parse(JSON.stringify(val).match(/(?<=\().*(?=\))/g)[0].replace(/\\/g, ''))
 }
+
+
+
+
+
 const Rule = new schedule.RecurrenceRule()
-Rule.hour = [16]
-Rule.minute = [50]
+Rule.hour = [11]
+Rule.minute = [05]
 schedule.scheduleJob(Rule, function () {
     // 每天晚上十一点三十运行
-    Cookie.find({ status: { $ne: -1 } }, (err, data) => {
+    // 
+
+    Cookie.find({ status: { $ne: -1 },type: 1 }, (err, data) => {
         if (err) {
             console.log('数据库查询错误')
             return
         }
         let dataLength = data.length
         for (let i = 0; i < dataLength; i++) {
-            start({ 'Referer': 'https://v.qq.com', Cookie: data[i].videoCookie }).then(res => {
+            start(data[i].videoCookie.loginUrl,{ 'Referer': 'https://v.qq.com', Cookie: data[i].videoCookie.Cookie }).then(res => {
                 console.log('成功')
                 if (data[i].status === 2) {
                     Cookie.updateOne({ _id: data[i]._id }, { status: 1 }, (err, data) => {

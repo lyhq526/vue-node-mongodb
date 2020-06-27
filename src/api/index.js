@@ -14,3 +14,15 @@ export function addVideo(params) {
 export function deleteList(params) {
     return ajax.post('/api/user/deleteList', params)
 }
+export function addPan(params) {
+    return ajax.post('/api/user/pan', params)
+}
+export function selectData(params) {
+    return ajax.post('/api/select', params)
+}
+export function updataPan(params) {
+    return ajax.post('/api/updata/pan', params)
+}
+export function updataVideo(params) {
+    return ajax.post('/api/updata/video', params)
+}

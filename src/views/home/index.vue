@@ -1,8 +1,11 @@
 <template>
   <div>
     <el-table :data="tableData" style="width: 100%" height="500">
-      <el-table-column prop="type" label="类型"></el-table-column>
-      <el-table-column prop="videoCookie" label="Cookie"></el-table-column>
+      <el-table-column prop="type" label="类型">
+        <template slot-scope="scope">
+          <span>{{scope.row.type==1?'腾讯视频':'天翼云盘'}}</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="status" label="状态">
         <template slot-scope="scope">
           <span
@@ -14,6 +17,10 @@
       <el-table-column label="操作">
         <template slot-scope="scope">
           <span style="color:#409EFF;cursor: pointer;" @click="deleteItem(scope.row._id)">删除</span>
+          <span
+            style="color:#409EFF;cursor: pointer;"
+            @click="$router.push({path:scope.row.type==1?'./tentVideo':'/netdisc',query:{id:scope.row._id}})"
+          >编辑</span>
         </template>
       </el-table-column>
     </el-table>
@@ -53,5 +60,4 @@ export default {
 };
 </script>
 <style scoped lang="scss">
-
 </style>

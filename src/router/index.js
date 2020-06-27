@@ -29,6 +29,11 @@ const routes = [
         path: '/tentVideo',
         component: () => import('../views/tentVideo/index.vue')
       },
+      {
+        name: '天翼云盘签到',
+        path: '/netdisc',
+        component: () => import('../views/pan/index.vue')
+      },
     ],
   }
 ]

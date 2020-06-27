@@ -115,6 +115,11 @@ export default {
                 JSON.stringify(res.data.userInfo)
               );
               this.$router.push({ path: "/home" });
+            } else {
+              this.$message({
+                message: res.message,
+                type: "error"
+              });
             }
           });
         }
@@ -128,6 +133,7 @@ export default {
             passWord: this.registerForm.passWordOne
           };
           register(pram).then(res => {
+            this.dialogVisible = false
             this.$message({
               message: res.message,
               type: "success"

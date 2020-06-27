@@ -7,6 +7,7 @@ const bodyParser = require("body-parser")
 const app = express()
 var jwt = require('jsonwebtoken')
 const video = require("./server/video")
+const pan = require("./server/pan")
 
 //这一句是连接上数据库
 var db = mongoose.connect('mongodb://localhost:27017/test', { useNewUrlParser: true, useUnifiedTopology: true });
